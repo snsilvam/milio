@@ -174,7 +174,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/milio/prod/1687248709835-2023-06-20T08:11:49.835Z/milio.zip"
+                "S3Key": "serverless/milio/prod/1687261211984-2023-06-20T11:40:11.984Z/milio.zip"
               },
               "Handler": "dist/serverless.handler",
               "Runtime": "nodejs18.x",
@@ -192,14 +192,14 @@
               "MainLogGroup"
             ]
           },
-          "MainLambdaVersion4qnV9Xp7KyKD67r8WQm1GaDYAHIqWXe7YiszNopc4o": {
+          "MainLambdaVersioniGRH0kBjFFRWfLKHIm95lk96MLwY1HqrwBTFQaHsk": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "MainLambdaFunction"
               },
-              "CodeSha256": "2o+05/83EAc4d5O+cesb2ZsYvhobC3ShetXC8u/Li2A="
+              "CodeSha256": "rtPPhc6k7uDkPildvuQ/DBfNQWCWGugnX6fRKrCuTZE="
             }
           },
           "ApiGatewayRestApi": {
@@ -324,7 +324,7 @@
               "MainLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1687248685889": {
+          "ApiGatewayDeployment1687261187468": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -387,7 +387,7 @@
           "MainLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "MainLambdaVersion4qnV9Xp7KyKD67r8WQm1GaDYAHIqWXe7YiszNopc4o"
+              "Ref": "MainLambdaVersioniGRH0kBjFFRWfLKHIm95lk96MLwY1HqrwBTFQaHsk"
             },
             "Export": {
               "Name": "sls-milio-prod-MainLambdaFunctionQualifiedArn"
@@ -534,7 +534,7 @@
         "timeout": 6,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "MainLambdaVersion4qnV9Xp7KyKD67r8WQm1GaDYAHIqWXe7YiszNopc4o"
+        "versionLogicalId": "MainLambdaVersioniGRH0kBjFFRWfLKHIm95lk96MLwY1HqrwBTFQaHsk"
       }
     },
     "configValidationMode": "warn",
@@ -556,7 +556,7 @@
     "artifact": "C:\\NestJS\\milio\\.serverless\\milio.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/milio/prod/1687248709835-2023-06-20T08:11:49.835Z",
+    "artifactDirectoryName": "serverless/milio/prod/1687261211984-2023-06-20T11:40:11.984Z",
     "artifact": "milio.zip"
   }
 }
