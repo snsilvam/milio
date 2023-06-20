@@ -1,9 +1,7 @@
 service: milio
 
-frameworkVersion: '3'
-
 plugins:
-  - serverless-jetpack
+  - serverless-offline
 
 provider:
   name: aws
@@ -11,9 +9,12 @@ provider:
   region: us-west-2
 
 functions:
-  api:
-    handler: dist/lambda.handler
+  main:
+    handler: dist/serverless.handler
     events:
       - http:
-          method: any
+          method: ANY
+          path: /
+      - http:
+          method: ANY
           path: /{proxy+}

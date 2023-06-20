@@ -83,10 +83,10 @@
               }
             }
           },
-          "ApiLogGroup": {
+          "MainLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/milio-dev-api"
+              "LogGroupName": "/aws/lambda/milio-prod-main"
             }
           },
           "IamRoleLambdaExecution": {
@@ -115,7 +115,7 @@
                       "-",
                       [
                         "milio",
-                        "dev",
+                        "prod",
                         "lambda"
                       ]
                     ]
@@ -132,7 +132,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/milio-dev*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/milio-prod*:*"
                           }
                         ]
                       },
@@ -143,7 +143,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/milio-dev*:*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/milio-prod*:*:*"
                           }
                         ]
                       }
@@ -157,7 +157,7 @@
                   "-",
                   [
                     "milio",
-                    "dev",
+                    "prod",
                     {
                       "Ref": "AWS::Region"
                     },
@@ -167,18 +167,18 @@
               }
             }
           },
-          "ApiLambdaFunction": {
+          "MainLambdaFunction": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
               "Code": {
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/milio/dev/1687037680758-2023-06-17T21:34:40.758Z/milio.zip"
+                "S3Key": "serverless/milio/prod/1687248709835-2023-06-20T08:11:49.835Z/milio.zip"
               },
-              "Handler": "dist/lambda.handler",
+              "Handler": "dist/serverless.handler",
               "Runtime": "nodejs18.x",
-              "FunctionName": "milio-dev-api",
+              "FunctionName": "milio-prod-main",
               "MemorySize": 1024,
               "Timeout": 6,
               "Role": {
@@ -189,23 +189,23 @@
               }
             },
             "DependsOn": [
-              "ApiLogGroup"
+              "MainLogGroup"
             ]
           },
-          "ApiLambdaVersionzSNqgcQJ38J36U2KLdhOV6CY81BFET304HidXByZ3c": {
+          "MainLambdaVersion4qnV9Xp7KyKD67r8WQm1GaDYAHIqWXe7YiszNopc4o": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
-                "Ref": "ApiLambdaFunction"
+                "Ref": "MainLambdaFunction"
               },
-              "CodeSha256": "p2c8i7S25fElurbkqQ9jHT/iYWHk2dcLjDcLdsekF1Q="
+              "CodeSha256": "2o+05/83EAc4d5O+cesb2ZsYvhobC3ShetXC8u/Li2A="
             }
           },
           "ApiGatewayRestApi": {
             "Type": "AWS::ApiGateway::RestApi",
             "Properties": {
-              "Name": "dev-milio",
+              "Name": "prod-milio",
               "EndpointConfiguration": {
                 "Types": [
                   "EDGE"
@@ -228,6 +228,55 @@
                 "Ref": "ApiGatewayRestApi"
               }
             }
+          },
+          "ApiGatewayMethodAny": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "ANY",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "MainLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "MainLambdaPermissionApiGateway"
+            ]
           },
           "ApiGatewayMethodProxyVarAny": {
             "Type": "AWS::ApiGateway::Method",
@@ -260,7 +309,7 @@
                       ":lambda:path/2015-03-31/functions/",
                       {
                         "Fn::GetAtt": [
-                          "ApiLambdaFunction",
+                          "MainLambdaFunction",
                           "Arn"
                         ]
                       },
@@ -272,27 +321,28 @@
               "MethodResponses": []
             },
             "DependsOn": [
-              "ApiLambdaPermissionApiGateway"
+              "MainLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1687037676737": {
+          "ApiGatewayDeployment1687248685889": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               },
-              "StageName": "dev"
+              "StageName": "prod"
             },
             "DependsOn": [
+              "ApiGatewayMethodAny",
               "ApiGatewayMethodProxyVarAny"
             ]
           },
-          "ApiLambdaPermissionApiGateway": {
+          "MainLambdaPermissionApiGateway": {
             "Type": "AWS::Lambda::Permission",
             "Properties": {
               "FunctionName": {
                 "Fn::GetAtt": [
-                  "ApiLambdaFunction",
+                  "MainLambdaFunction",
                   "Arn"
                 ]
               },
@@ -331,16 +381,16 @@
               "Ref": "ServerlessDeploymentBucket"
             },
             "Export": {
-              "Name": "sls-milio-dev-ServerlessDeploymentBucketName"
+              "Name": "sls-milio-prod-ServerlessDeploymentBucketName"
             }
           },
-          "ApiLambdaFunctionQualifiedArn": {
+          "MainLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersionzSNqgcQJ38J36U2KLdhOV6CY81BFET304HidXByZ3c"
+              "Ref": "MainLambdaVersion4qnV9Xp7KyKD67r8WQm1GaDYAHIqWXe7YiszNopc4o"
             },
             "Export": {
-              "Name": "sls-milio-dev-ApiLambdaFunctionQualifiedArn"
+              "Name": "sls-milio-prod-MainLambdaFunctionQualifiedArn"
             }
           },
           "ServiceEndpoint": {
@@ -361,12 +411,12 @@
                   {
                     "Ref": "AWS::URLSuffix"
                   },
-                  "/dev"
+                  "/prod"
                 ]
               ]
             },
             "Export": {
-              "Name": "sls-milio-dev-ServiceEndpoint"
+              "Name": "sls-milio-prod-ServiceEndpoint"
             }
           }
         }
@@ -456,13 +506,20 @@
       "vpc": {}
     },
     "plugins": [
-      "serverless-jetpack"
+      "serverless-offline"
     ],
     "pluginsData": {},
     "functions": {
-      "api": {
-        "handler": "dist/lambda.handler",
+      "main": {
+        "handler": "dist/serverless.handler",
         "events": [
+          {
+            "http": {
+              "method": "any",
+              "path": "",
+              "integration": "AWS_PROXY"
+            }
+          },
           {
             "http": {
               "method": "any",
@@ -471,20 +528,19 @@
             }
           }
         ],
-        "name": "milio-dev-api",
+        "name": "milio-prod-main",
         "package": {},
         "memory": 1024,
         "timeout": 6,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersionzSNqgcQJ38J36U2KLdhOV6CY81BFET304HidXByZ3c"
+        "versionLogicalId": "MainLambdaVersion4qnV9Xp7KyKD67r8WQm1GaDYAHIqWXe7YiszNopc4o"
       }
     },
     "configValidationMode": "warn",
     "serviceFilename": "serverless.yaml",
     "initialServerlessConfig": {
       "service": "milio",
-      "frameworkVersion": "3",
       "plugins": {
         "$ref": "$[\"service\"][\"plugins\"]"
       },
@@ -496,10 +552,11 @@
       }
     },
     "layers": {},
-    "isDashboardMonitoringPreconfigured": false
+    "isDashboardMonitoringPreconfigured": false,
+    "artifact": "C:\\NestJS\\milio\\.serverless\\milio.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/milio/dev/1687037680758-2023-06-17T21:34:40.758Z",
+    "artifactDirectoryName": "serverless/milio/prod/1687248709835-2023-06-20T08:11:49.835Z",
     "artifact": "milio.zip"
   }
 }
